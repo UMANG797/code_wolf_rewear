@@ -103,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         borderSide: const BorderSide(color: Color(0xFFFFDE59), width: 2),
       ),
       filled: true,
-      fillColor: Colors.black.withOpacity(0.3),
+      fillColor: Colors.black.withOpacity(0.7),
     );
   }
 
@@ -114,7 +114,51 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     return Scaffold(
       body: Stack(
         children: [
-          // Animated Background Circles
+          // Clothing Pattern Background
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF2C3E50), // Deep blue-gray
+                  Color(0xFF34495E), // Darker blue-gray
+                  Color(0xFF2C3E50), // Deep blue-gray
+                ],
+              ),
+            ),
+          ),
+          // Clothing Icons Pattern
+          ...List.generate(20, (index) {
+            final random = math.Random(index);
+            final icons = [
+              Icons.checkroom,
+              Icons.dry_cleaning,
+              Icons.local_laundry_service,
+              Icons.accessibility_new,
+            ];
+            return Positioned(
+              left: random.nextDouble() * size.width,
+              top: random.nextDouble() * size.height,
+              child: AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(
+                      math.sin(_animationController.value * 2 * math.pi + index) * 10,
+                      math.cos(_animationController.value * 2 * math.pi + index) * 10,
+                    ),
+                    child: Icon(
+                      icons[index % icons.length],
+                      size: 30 + random.nextDouble() * 20,
+                      color: Colors.white.withOpacity(0.05),
+                    ),
+                  );
+                },
+              ),
+            );
+          }),
+          // Animated Background Circles (clothing themed colors)
           ..._circles.map((circle) => AnimatedBuilder(
             animation: _animationController,
             builder: (context, child) {
@@ -128,161 +172,173 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   height: circle.size,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color(0xFFFFDE59).withOpacity(circle.opacity),
+                    color: const Color(0xFFFFDE59).withOpacity(circle.opacity * 0.3),
                   ),
                 ),
               );
             },
           )),
-          // Main Content
+          // Fabric Texture Overlay
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
                 colors: [
-                  Colors.black,
-                  Colors.black.withOpacity(0.8),
-                  Colors.black.withOpacity(0.9),
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.3),
+                  Colors.black.withOpacity(0.5),
                 ],
               ),
             ),
-            child: SafeArea(
-              child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                padding: EdgeInsets.all(size.width * 0.06),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: size.height - MediaQuery.of(context).padding.top),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(height: size.height * 0.05),
-                      // Logo Container
-                      Container(
-                        height: size.width * 0.35, // Increased size for better visibility
-                        width: size.width * 0.35,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.black,
-                          border: Border.all(
+          ),
+          // Main Content
+          SafeArea(
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              padding: EdgeInsets.all(size.width * 0.06),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: size.height - MediaQuery.of(context).padding.top),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(height: size.height * 0.05),
+                    // Logo Container
+                    Container(
+                      height: size.width * 0.35,
+                      width: size.width * 0.35,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFF2C3E50),
+                        border: Border.all(
+                          color: const Color(0xFFFFDE59),
+                          width: 2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFFFDE59).withOpacity(0.3),
+                            blurRadius: 20,
+                            spreadRadius: 5,
+                          ),
+                        ],
+                      ),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/splash.png',
+                          fit: BoxFit.contain,
+                          height: size.width * 0.35,
+                          width: size.width * 0.35,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.05),
+                    // Welcome Text
+                    ShaderMask(
+                      shaderCallback: (bounds) => const LinearGradient(
+                        colors: [Color(0xFFFFDE59), Colors.white],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ).createShader(bounds),
+                      child: const Text(
+                        "Welcome Back!",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.02),
+                    // Subtitle
+                    const Text(
+                      "ReWear - Your Sustainable Fashion Community",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white70,
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.05),
+                    // Email Field
+                    TextField(
+                      controller: emailController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: _buildInputDecoration("Email", Icons.email),
+                    ),
+                    SizedBox(height: size.height * 0.025),
+                    // Password Field
+                    TextField(
+                      controller: passwordController,
+                      style: const TextStyle(color: Colors.white),
+                      obscureText: obscurePassword,
+                      decoration: _buildInputDecoration("Password", Icons.lock).copyWith(
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            obscurePassword ? Icons.visibility : Icons.visibility_off,
                             color: const Color(0xFFFFDE59),
-                            width: 2,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFFFDE59).withOpacity(0.3),
-                              blurRadius: 20,
-                              spreadRadius: 5,
-                            ),
-                          ],
-                        ),
-                        child: ClipOval(
-                          child: Image.asset(
-                            'assets/splash.png',
-                            fit: BoxFit.contain, // Ensures image fits within circle with aspect ratio
-                            height: size.width * 0.35,
-                            width: size.width * 0.35,
-                          ),
+                          onPressed: () => setState(() => obscurePassword = !obscurePassword),
                         ),
                       ),
-                      SizedBox(height: size.height * 0.05),
-                      // Welcome Text
-                      ShaderMask(
-                        shaderCallback: (bounds) => const LinearGradient(
-                          colors: [Color(0xFFFFDE59), Colors.white],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ).createShader(bounds),
-                        child: const Text(
-                          "Welcome Back!",
-                          textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: size.height * 0.04),
+                    // Login Button
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      height: 55,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFFFDE59), Color(0xFFFFD700)],
+                        ),
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFFFDE59).withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: isLoading ? null : signIn,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        child: isLoading
+                            ? const CircularProgressIndicator(color: Colors.black)
+                            : const Text(
+                          "Sign In",
                           style: TextStyle(
-                            fontSize: 32,
+                            fontSize: 18,
+                            color: Colors.black,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
                           ),
                         ),
                       ),
-                      SizedBox(height: size.height * 0.05),
-                      // Email Field
-                      TextField(
-                        controller: emailController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: _buildInputDecoration("Email", Icons.email),
+                    ),
+                    SizedBox(height: size.height * 0.025),
+                    // Register Link
+                    TextButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const RegisterScreen()),
                       ),
-                      SizedBox(height: size.height * 0.025),
-                      // Password Field
-                      TextField(
-                        controller: passwordController,
-                        style: const TextStyle(color: Colors.white),
-                        obscureText: obscurePassword,
-                        decoration: _buildInputDecoration("Password", Icons.lock).copyWith(
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              obscurePassword ? Icons.visibility : Icons.visibility_off,
-                              color: const Color(0xFFFFDE59),
-                            ),
-                            onPressed: () => setState(() => obscurePassword = !obscurePassword),
-                          ),
+                      child: const Text(
+                        "Don't have an account? Sign Up",
+                        style: TextStyle(
+                          color: Color(0xFFFFDE59),
+                          fontSize: 16,
                         ),
                       ),
-                      SizedBox(height: size.height * 0.04),
-                      // Login Button
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        height: 55,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFFFDE59), Color(0xFFFFD700)],
-                          ),
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFFFDE59).withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ElevatedButton(
-                          onPressed: isLoading ? null : signIn,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                          child: isLoading
-                              ? const CircularProgressIndicator(color: Colors.black)
-                              : const Text(
-                            "Sign In",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: size.height * 0.025),
-                      // Register Link
-                      TextButton(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                        ),
-                        child: const Text(
-                          "Don't have an account? Sign Up",
-                          style: TextStyle(
-                            color: Color(0xFFFFDE59),
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
